@@ -87,7 +87,8 @@
             <version>57.1</version>
             <scope>test</scope>
             <type>jar</type>
-        </dependency>    		
+        </dependency>        
+          		
 	</dependencies>
 
 	<build>
