@@ -111,18 +111,12 @@ public class Tescolotus {
         for(String listUrl : list) {
         	t.content(listUrl);
         }
-        int i = 0;
+/*        int i = 0;
         for(String urlDetail : listUrlDetail) {
         	t.contentDetail(urlDetail);
         	System.out.println(++i);        	
         }
-       
-       /* String url = "https://shoponline.tescolotus.com/groceries/th-TH/promotions/all?superdepartment=12617";
-        String url = "https://shoponline.tescolotus.com/groceries/th-TH/products/6050484750";
-        t.content(url);
-        
-        String url = "https://shoponline.tescolotus.com/groceries/th-TH/products/6050484750";
-        t.contentDetail(url);
-      */  
+*/       
+ 
     }
 }
