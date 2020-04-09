@@ -10,11 +10,17 @@ import org.jsoup.select.Elements;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.projectfinalwebscrappingbot.dao.Redis;
 import com.projectfinalwebscrappingbot.function.DateTimes;
 import com.projectfinalwebscrappingbot.function.Elasticsearch;
 
+import redis.clients.jedis.Jedis;
+
 @Service
 public class ServiceWebImpl implements ServiceWeb {
+    @Autowired
+    private Redis rd;  
+    
     @Autowired
     private DateTimes dateTimes;
 
@@ -23,6 +29,7 @@ public class ServiceWebImpl implements ServiceWeb {
 
 	@Override
 	public void tescolotus(String obj) {
+		Jedis redis = rd.connect();
 		JSONObject json = new JSONObject(obj);
 		JSONObject jsonEls = new JSONObject();
 		String url = json.getString("url");
@@ -32,8 +39,7 @@ public class ServiceWebImpl implements ServiceWeb {
         	//find image
             for (Element ele : elesUrlDetail) {
                 Element eleUrl = ele.select("img").first();
-                String image = eleUrl.attr("src");
-                //System.out.println(image);       
+                String image = eleUrl.attr("src");      
                 jsonEls.put("image",image);    
         	}
             //find name
@@ -59,10 +65,19 @@ public class ServiceWebImpl implements ServiceWeb {
             jsonEls.put("originalPrice",originalPrice);
             jsonEls.put("discountFull",discountFull);
             jsonEls.put("discount",discount);
-            els.inputElasticsearch(jsonEls.toString(), json.getString("web_name"));
+            
+            String db = json.getString("database");
+            // ตรวจสอบ db แล้วทำการลง db นั้นๆ เช่น database1 database2
+            if(db.matches("db_1")) {
+            	els.inputElasticsearch(jsonEls.toString(), json.getString("web_name")+"-db-1");
+            }else {
+            	els.inputElasticsearch(jsonEls.toString(), json.getString("web_name")+"-db-2");
+            }
+            
             System.out.println(dateTimes.thaiDateTime() +" web scrapping ==> "+url); 
     	}catch(Exception e) {
     		System.out.println(e.getMessage());
+    		redis.rpush("detailUrl", obj); //กรณี error ให้ยัดลง redis ที่รับมาอีกรอบ
     	}	
 	}
 
