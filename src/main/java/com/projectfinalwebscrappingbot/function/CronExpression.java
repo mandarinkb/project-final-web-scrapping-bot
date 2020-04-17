@@ -10,6 +10,6 @@ public class CronExpression {
     private Query query;
 
     public String cronExpressionTask() {
-        return query.StrExcuteQuery("SELECT cron_expression FROM schedule WHERE project_name = 'web scrapping input database' AND function_name = 'runTask'");
+        return query.StrExcuteQuery("select CRON_EXPRESSION from SCHEDULE where PROJECT_NAME = 'project-final-start-bot' and METHOD_NAME = 'start'");
     }
 }

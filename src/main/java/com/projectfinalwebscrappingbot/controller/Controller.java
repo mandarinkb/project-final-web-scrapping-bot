@@ -25,7 +25,7 @@ public class Controller {
 
     @Scheduled(cron = "0 0/1 * 1/1 * ?") // เรียกใช้งานทุกๆ 1 นาที
     public void runTask() {
-        System.out.println(dateTimes.interDateTime() + " : web scrapping input database runTask start");
+        System.out.println(dateTimes.interDateTime() + " : web scrapping input database start");
         Jedis redis = rd.connect();
         boolean checkDetailUrl = true;
         while (checkDetailUrl) {
@@ -36,6 +36,6 @@ public class Controller {
             	checkDetailUrl = false;
             }
         }
-        System.out.println(dateTimes.interDateTime() + " : web scrapping input database runTask stop");
+        System.out.println(dateTimes.interDateTime() + " : web scrapping input database stop");
     }
 }
