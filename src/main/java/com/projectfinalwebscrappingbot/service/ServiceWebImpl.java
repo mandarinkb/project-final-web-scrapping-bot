@@ -8,6 +8,7 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.projectfinalwebscrappingbot.dao.Redis;
@@ -18,6 +19,12 @@ import redis.clients.jedis.Jedis;
 
 @Service
 public class ServiceWebImpl implements ServiceWeb {
+    @Value("${db_1}")
+    private String db_1;
+    
+    @Value("${db_2}")
+    private String db_2;
+	
     @Autowired
     private Redis rd;  
     
@@ -68,10 +75,10 @@ public class ServiceWebImpl implements ServiceWeb {
             
             String db = json.getString("database");
             // ตรวจสอบ db แล้วทำการลง db นั้นๆ เช่น database1 database2
-            if(db.matches("db_1")) {
-            	els.inputElasticsearch(jsonEls.toString(), json.getString("web_name")+"-db-1");
-            }else {
-            	els.inputElasticsearch(jsonEls.toString(), json.getString("web_name")+"-db-2");
+            if(db.matches(db_1)) {
+            	els.inputElasticsearch(jsonEls.toString(), json.getString("database"));
+            }else if(db.matches(db_2)){
+            	els.inputElasticsearch(jsonEls.toString(), json.getString("database"));
             }
             
             System.out.println(dateTimes.thaiDateTime() +" web scrapping ==> "+url); 
