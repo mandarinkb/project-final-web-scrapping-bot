@@ -62,7 +62,7 @@ public class ServiceWebImpl implements ServiceWeb {
             double price = Double.parseDouble(priceStr);
             double originalPrice = Double.parseDouble(originalPriceStr);
             double discountFull = (((originalPrice - price) / originalPrice) * 100);  // หา % ของส่วนลด
-            DecimalFormat df = new DecimalFormat("#.#"); // แปลงทศนิยม 1 ตำแหน่ง
+            DecimalFormat df = new DecimalFormat("#"); // #.# แปลงทศนิยม 1 ตำแหน่ง
             double discount = Double.parseDouble(df.format(discountFull));
             
             jsonEls.put("category",json.getString("category"));
@@ -72,6 +72,7 @@ public class ServiceWebImpl implements ServiceWeb {
             jsonEls.put("originalPrice",originalPrice);
             jsonEls.put("discountFull",discountFull);
             jsonEls.put("discount",discount);
+            jsonEls.put("webName",json.getString("web_name"));
             
             String db = json.getString("database");
             // ตรวจสอบ db แล้วทำการลง db นั้นๆ เช่น database1 database2
