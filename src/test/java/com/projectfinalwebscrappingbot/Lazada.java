@@ -10,7 +10,7 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-public class WebScrappingDemo {
+public class Lazada {
     public static void content(String url) throws IOException, InterruptedException {
     	
 		Document doc = Jsoup.connect(url).timeout(60 * 1000).get();//
@@ -62,11 +62,29 @@ public class WebScrappingDemo {
         //System.out.print(eles);
     }
 	
+    public static void category(String url) {
+    	try {
+    		Document doc = Jsoup.connect(url).timeout(60 * 1000).get();//
+            Elements eles = doc.select(".lzd-site-menu-root");
+            System.out.println(eles);
+    	} catch(Exception e) {
+    		System.out.println(e.getMessage());
+    	}
+
+    	
+    }
+    
     public static void main(String[] args) throws IOException, InterruptedException{
     	//https://www.lazada.co.th/shop-mobiles/?page=2
-        String url = "https://www.lazada.co.th/shop-motorcycle-riding-gear-balaclavas/?page=2";  //https://www.lazada.co.th/#
-        WebScrappingDemo w = new WebScrappingDemo();
+        /*String url = "https://www.lazada.co.th/shop-motorcycle-riding-gear-balaclavas/?page=2";  //https://www.lazada.co.th/#
+        Lazada w = new Lazada();
         w.content(url);
+        */
+    	String url = "https://www.lazada.co.th/#";
+    	Lazada l = new Lazada();
+    	l.category(url);
+    	
+    	
     }	
 	
 }
