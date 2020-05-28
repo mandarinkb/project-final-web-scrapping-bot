@@ -16,9 +16,52 @@ public class Lazada {
     public static void content(String url) throws IOException, InterruptedException {
     	
 		Document doc = Jsoup.connect(url).timeout(60 * 1000).get();//
-        Elements eles = doc.select("head");//lzd-site-nav-menu-dropdown
-        String eles2 = eles.select("script").get(3).html();
-        System.out.println(eles2);       
+        Elements eles = doc.select("head");
+        String detail = eles.select("script").get(3).html();
+        detail = detail.replace("window.pageData=", "");
+        
+        try {
+            JSONObject obj = new JSONObject(detail);
+            JSONObject objMods = obj.getJSONObject("mods");
+            JSONArray arrListItems = objMods.getJSONArray("listItems");
+            for (int i = 0; i < arrListItems.length(); i++) {
+            	JSONObject objItems = arrListItems.getJSONObject(i);
+            	
+            	String image = objItems.getString("image");
+            	//String originalPrice = objItems.getString("originalPrice");
+            	
+            	//เช็คว่ามี key หรือไม่
+            	if (objItems.has("originalPrice")) { 
+            		String originalPrice = objItems.getString("originalPrice");
+            		System.out.println("originalPrice => " + originalPrice);
+            	}
+            	String price = objItems.getString("price");
+            	// String webName
+            	String name = objItems.getString("name");
+            	// String icon
+            	
+            	if (objItems.has("discount")) { 
+            		String discount = objItems.getString("discount");
+            		System.out.println("discount => " + discount);
+            	}
+            	//String discount = objItems.getString("discount");
+            	// String discountFull
+            	// String category
+            	String productUrl = objItems.getString("productUrl");
+            	
+            	
+            	
+            	//System.out.println("name => " + name);
+            
+            }
+            
+            
+        }catch(Exception e) {
+        	System.out.println(e.getMessage());
+        }
+
+        
+        //System.out.println(detail);       
     	
     	
     	/*int i = 0;
@@ -115,8 +158,8 @@ public class Lazada {
                         String name = ele.select("span").html();
                         String urlDetail = eleUrl.absUrl("href");
                         
-                        //System.out.println(name);
-                        //System.out.println(urlDetail);
+                        System.out.println(name);
+                        System.out.println(urlDetail);
             		}
             		System.out.println("=============================================================");
             	}
@@ -128,17 +171,16 @@ public class Lazada {
     }
     
     public static void main(String[] args) throws IOException, InterruptedException{
-    	//https://www.lazada.co.th/shop-mobiles/?page=2
-        /*String url = "https://www.lazada.co.th/shop-motorcycle-riding-gear-balaclavas/?page=2";  //https://www.lazada.co.th/#
-        Lazada w = new Lazada();
-        w.content(url);
-        */
+    	String url = "https://www.lazada.co.th/shop-mobiles/";
+        Lazada l = new Lazada();
+        l.content(url);
+        
     	
-
+/*
     	String url = "https://www.lazada.co.th/#";
     	Lazada l = new Lazada();
     	l.category(url);
-    	
+    */	
     	
     }	
 	
