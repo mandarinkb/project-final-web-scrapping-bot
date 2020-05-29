@@ -1,6 +1,7 @@
 package com.projectfinalwebscrappingbot.controller;
 
 
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -30,8 +31,25 @@ public class Controller {
         boolean checkDetailUrl = true;
         while (checkDetailUrl) {
         	String obj = redis.rpop("detailUrl");
+        	JSONObject json = new JSONObject(obj);
+        	String webName = json.getString("web_name");
+
         	if (obj != null) {
-        		serviceWeb.tescolotus(obj);;
+        		//serviceWeb.tescolotus(obj);
+                switch(webName) 
+                { 
+                    case "tescolotus": 
+                    	serviceWeb.tescolotus(json.toString());
+                        break; 
+                    case "lazada": 
+                    	serviceWeb.lazada(json.toString());
+                        break; 
+                    case "three": 
+                        System.out.println("three"); 
+                        break; 
+                    default: 
+                        System.out.println("no match"); 
+                } 
             } else {
             	checkDetailUrl = false;
             }

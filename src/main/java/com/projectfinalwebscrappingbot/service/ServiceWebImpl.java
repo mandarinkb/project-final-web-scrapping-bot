@@ -2,6 +2,7 @@ package com.projectfinalwebscrappingbot.service;
 
 import java.text.DecimalFormat;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -87,6 +88,72 @@ public class ServiceWebImpl implements ServiceWeb {
     		System.out.println(e.getMessage());
     		redis.rpush("detailUrl", obj); //กรณี error ให้ยัดลง redis ที่รับมาอีกรอบ
     	}	
+	}
+
+	@Override
+	public void lazada(String objStr) {
+		Jedis redis = rd.connect();
+		JSONObject json = new JSONObject(objStr);
+		JSONObject jsonEls = new JSONObject();
+		String url = json.getString("url");
+        try {
+    		Document doc = Jsoup.connect(url).timeout(60 * 1000).get();//
+            Elements eles = doc.select("head");
+            String detail = eles.select("script").get(3).html();
+            System.out.println(url); 
+            detail = detail.replace("window.pageData=", "");
+
+            JSONObject obj = new JSONObject(detail);
+            JSONObject objMods = obj.getJSONObject("mods");
+            JSONArray arrListItems = objMods.getJSONArray("listItems");
+            for (int i = 0; i < arrListItems.length(); i++) {
+            	JSONObject objItems = arrListItems.getJSONObject(i);
+            	
+            	String image = objItems.getString("image");
+            	
+            	//เช็คว่ามี key หรือไม่
+            	String originalPrice = null;
+            	if (objItems.has("originalPrice")) { 
+            		originalPrice = objItems.getString("originalPrice");
+            	}
+            	String price = objItems.getString("price");
+            	String name = objItems.getString("name");
+            	
+            	String discount = null;  
+            	if (objItems.has("discount")) { 
+            		discount = objItems.getString("discount");
+            	}
+
+            	String productUrl = objItems.getString("productUrl");
+            	productUrl = "https:" + productUrl;
+        
+            	// เก็บเฉพาะที่มีส่วนลด
+            	if(discount != null) {
+            		jsonEls.put("image",image);  
+            		jsonEls.put("name",name);  
+                    jsonEls.put("category",json.getString("category"));  
+                    jsonEls.put("productUrl",productUrl);  
+                    jsonEls.put("icon",json.getString("icon_url"));
+                    jsonEls.put("price",price); 
+                    jsonEls.put("originalPrice",originalPrice);  
+                    //jsonEls.put("discountFull",discountFull);
+                    jsonEls.put("discount",discount);  
+                    jsonEls.put("webName",json.getString("web_name"));  
+                    
+                    String db = json.getString("database");
+                    // ตรวจสอบ db แล้วทำการลง db นั้นๆ เช่น database1 database2
+                    if(db.matches(db_1)) {
+                    	els.inputElasticsearch(jsonEls.toString(), json.getString("database"));
+                    }else if(db.matches(db_2)){
+                    	els.inputElasticsearch(jsonEls.toString(), json.getString("database"));
+                    }
+                    System.out.println(dateTimes.thaiDateTime() +" web scrapping ==> "+productUrl); 
+            	}
+            }   
+        }catch(Exception e) {
+        	System.out.println("error => " + e.getMessage());
+        	//redis.rpush("detailUrl", objStr); //กรณี error ให้ยัดลง redis ที่รับมาอีกรอบ
+        }	
 	}
 
 }

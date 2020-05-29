@@ -13,14 +13,14 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 public class Lazada {
-    public static void content(String url) throws IOException, InterruptedException {
-    	
-		Document doc = Jsoup.connect(url).timeout(60 * 1000).get();//
-        Elements eles = doc.select("head");
-        String detail = eles.select("script").get(3).html();
-        detail = detail.replace("window.pageData=", "");
-        
+    public static void getContent(String url) {
         try {
+    		Document doc = Jsoup.connect(url).timeout(60 * 1000).get();//
+    		//TimeUnit.SECONDS.sleep(5);
+            Elements eles = doc.select("head");
+            String detail = eles.select("script").get(3).html();
+            detail = detail.replace("window.pageData=", "");
+            
             JSONObject obj = new JSONObject(detail);
             JSONObject objMods = obj.getJSONObject("mods");
             JSONArray arrListItems = objMods.getJSONArray("listItems");
@@ -28,36 +28,40 @@ public class Lazada {
             	JSONObject objItems = arrListItems.getJSONObject(i);
             	
             	String image = objItems.getString("image");
-            	//String originalPrice = objItems.getString("originalPrice");
             	
             	//เช็คว่ามี key หรือไม่
+            	String originalPrice = null;
             	if (objItems.has("originalPrice")) { 
-            		String originalPrice = objItems.getString("originalPrice");
-            		System.out.println("originalPrice => " + originalPrice);
+            		originalPrice = objItems.getString("originalPrice");
             	}
             	String price = objItems.getString("price");
             	// String webName
             	String name = objItems.getString("name");
             	// String icon
             	
+            	String discount = null;  
             	if (objItems.has("discount")) { 
-            		String discount = objItems.getString("discount");
-            		System.out.println("discount => " + discount);
+            		discount = objItems.getString("discount");
             	}
-            	//String discount = objItems.getString("discount");
             	// String discountFull
             	// String category
             	String productUrl = objItems.getString("productUrl");
-            	
-            	
-            	
-            	//System.out.println("name => " + name);
-            
-            }
-            
-            
+            	productUrl = "https:" + productUrl;
+        
+            	// เก็บเฉพาะที่มีส่วนลด
+            	if(discount != null) {
+            		//System.out.println(++ii);
+            		System.out.println(image);
+            		System.out.println(originalPrice);
+            		System.out.println(price);
+            		System.out.println(name);
+            		System.out.println(discount);
+            		System.out.println(productUrl);
+            		System.out.println("==========================");
+            	}
+            }   
         }catch(Exception e) {
-        	System.out.println(e.getMessage());
+        	System.out.println("error => " + e.getMessage());
         }
 
         
@@ -107,7 +111,7 @@ public class Lazada {
         //System.out.print(eles);
     }
 	
-    public static void category(String url) {
+    public static void getCategory(String url) {
     	try {
     		Document doc = Jsoup.connect(url).timeout(60 * 1000).get();//
             Elements eles = doc.select(".lzd-site-menu-root");
@@ -117,9 +121,9 @@ public class Lazada {
             for(Element ele : eles.select(".lzd-site-menu-root-item")) {
             	objCategory = new JSONObject();
             	String id = ele.attr("id");
-            	String name = ele.select("span").html();
+            	String category = ele.select("span").html();
             	objCategory.put("class","." + id);
-            	objCategory.put("category", name);
+            	objCategory.put("category", category);
             	list.add(objCategory);	// เก้บ class และ category ลง list
             } 
             //นำ list ที่เก็บไว้มาแสดง
@@ -127,41 +131,41 @@ public class Lazada {
             for (int i = 0; i < arr.length(); i++) {
             	JSONObject obj = arr.getJSONObject(i);
             	String cl = obj.getString("class");
-            	String ca = obj.getString("category");
+            	String originalCategory = obj.getString("category");
 
             	// กรณี บ้านและไลฟ์สไตล์ ให้จัดเก็บข้อมูลบางส่วน(sub)
-            	if(ca.equals("บ้านและไลฟ์สไตล์")) {
+            	if(originalCategory.equals("บ้านและไลฟ์สไตล์")) {
             		// เก็บ Sub ลง list ก่อน
-            		System.out.println(ca);
+            		System.out.println(originalCategory);  // แปลงและจัดเก็บ 
             		Elements elesSubCategory = eles.select(cl);
             		for(Element ele : elesSubCategory.select(".lzd-site-menu-sub-item")) {
-                        String name = ele.select("span").first().html(); 
+                        String subCategory = ele.select("span").first().html(); 
                         // เก็บเฉพาะ อุปกรณ์ทำความสะอาดและซักรีด(detail)
-                        if(name.equals("อุปกรณ์ทำความสะอาดและซักรีด")) {
+                        if(subCategory.equals("อุปกรณ์ทำความสะอาดและซักรีด")) {
                     		for(Element e : ele.select(".lzd-site-menu-grand-item")) {
                                 Element eleDetail = e.select("a").first();
-                                String urlSubDetail = eleDetail.absUrl("href");
-                                String nameSub = e.select("span").html();
+                                String urlDetail = eleDetail.absUrl("href");   // จัดเก็บ url ลง redis เพื่อหา content ต่อ
+                                String name = e.select("span").html();
                                 
-                                System.out.println(nameSub);     
-                                System.out.println(urlSubDetail);  
+                                System.out.println(urlDetail);
+                                System.out.println(name);
                     		}
-                    		System.out.println("=============================================================");
+                    		System.out.println("===================================================");
                         }
             		}
             	}else {
             		// กรณีอื่นๆ เก็บ detail ได้เลย
-            		System.out.println(ca);
+            		System.out.println(originalCategory); // แปลงและจัดเก็บ 
             		Elements elesSubCategory = eles.select(cl);
             		for(Element ele : elesSubCategory.select(".lzd-site-menu-grand-item")) {
                         Element eleUrl = ele.select("a").first();
+                        String urlDetail = eleUrl.absUrl("href");    // จัดเก็บ url ลง redis เพื่อหา content ต่อ
                         String name = ele.select("span").html();
-                        String urlDetail = eleUrl.absUrl("href");
                         
-                        System.out.println(name);
-                        System.out.println(urlDetail);
+                        //System.out.println(urlDetail);
+                        //System.out.println(name);
             		}
-            		System.out.println("=============================================================");
+            		System.out.println("===================================================");
             	}
             }      
             
@@ -171,16 +175,16 @@ public class Lazada {
     }
     
     public static void main(String[] args) throws IOException, InterruptedException{
-    	String url = "https://www.lazada.co.th/shop-mobiles/";
+    	String url = "https://www.lazada.co.th/shop-mobiles/"; //https://www.lazada.co.th/shop-mobiles/?page=2
         Lazada l = new Lazada();
-        l.content(url);
-        
+        l.getContent(url);
+       
+    	/*
     	
-/*
     	String url = "https://www.lazada.co.th/#";
     	Lazada l = new Lazada();
-    	l.category(url);
-    */	
+    	l.getCategory(url);
+    	*/
     	
     }	
 	
