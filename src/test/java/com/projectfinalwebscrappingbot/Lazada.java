@@ -15,7 +15,10 @@ import org.jsoup.select.Elements;
 public class Lazada {
     public static void getContent(String url) {
         try {
-    		Document doc = Jsoup.connect(url).timeout(60 * 1000).get();//
+    		Document doc = Jsoup.connect(url)
+    				.userAgent("Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.36")
+    				.timeout(60 * 1000)
+    				.get();//
     		//TimeUnit.SECONDS.sleep(5);
             Elements eles = doc.select("head");
             String detail = eles.select("script").get(3).html();
@@ -162,8 +165,8 @@ public class Lazada {
                         String urlDetail = eleUrl.absUrl("href");    // จัดเก็บ url ลง redis เพื่อหา content ต่อ
                         String name = ele.select("span").html();
                         
-                        //System.out.println(urlDetail);
-                        //System.out.println(name);
+                        System.out.println(urlDetail);
+                        System.out.println(name);
             		}
             		System.out.println("===================================================");
             	}
@@ -175,16 +178,16 @@ public class Lazada {
     }
     
     public static void main(String[] args) throws IOException, InterruptedException{
-    	String url = "https://www.lazada.co.th/shop-mobiles/"; //https://www.lazada.co.th/shop-mobiles/?page=2
+    	/*String url = "https://www.lazada.co.th/shop-mobiles/?page=2"; //https://www.lazada.co.th/shop-mobiles/?page=2
         Lazada l = new Lazada();
         l.getContent(url);
-       
-    	/*
+       */
+    	
     	
     	String url = "https://www.lazada.co.th/#";
     	Lazada l = new Lazada();
     	l.getCategory(url);
-    	*/
+    	
     	
     }	
 	

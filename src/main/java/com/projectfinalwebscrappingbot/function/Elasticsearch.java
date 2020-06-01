@@ -3,8 +3,10 @@ package com.projectfinalwebscrappingbot.function;
 import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
+
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -34,5 +36,20 @@ public class Elasticsearch {
         } catch (UnirestException ex) {
             Logger.getLogger(Elasticsearch.class.getName()).log(Level.SEVERE, null, ex);
         }
-    }  
+    }
+    
+    public String lazadaApi(String url) {
+        String elsValue = null;
+        try {
+        	Unirest.setTimeouts(0, 0);
+        	HttpResponse<String> response = Unirest.get(url + "?ajax=true")
+        	  .header("Cookie", "JSESSIONID=DEB7EF01043BE33D0E4CD93A0029BB02")
+        	  .asString();
+            elsValue = response.getBody();
+        } catch (UnirestException ex) {
+            Logger.getLogger(Elasticsearch.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+    	return elsValue;	
+    }
 }

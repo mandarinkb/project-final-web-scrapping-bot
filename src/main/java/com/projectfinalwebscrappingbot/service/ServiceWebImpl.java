@@ -12,6 +12,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import com.mashape.unirest.http.HttpResponse;
+import com.mashape.unirest.http.Unirest;
 import com.projectfinalwebscrappingbot.dao.Redis;
 import com.projectfinalwebscrappingbot.function.DateTimes;
 import com.projectfinalwebscrappingbot.function.Elasticsearch;
@@ -97,11 +99,22 @@ public class ServiceWebImpl implements ServiceWeb {
 		JSONObject jsonEls = new JSONObject();
 		String url = json.getString("url");
         try {
-    		Document doc = Jsoup.connect(url).timeout(60 * 1000).get();//
+        	// old
+    		Document doc = Jsoup.connect(url)
+    				            .userAgent("Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) snap Chromium/83.0.4103.61 Chrome/83.0.4103.61 Safari/537.36")
+    				            .maxBodySize(0)
+    				            .timeout(600 * 1000)
+    				            .get();
             Elements eles = doc.select("head");
             String detail = eles.select("script").get(3).html();
-            System.out.println(url); 
             detail = detail.replace("window.pageData=", "");
+            
+        	
+        	// test new
+        	/*String detail = null;
+        	detail = els.lazadaApi(url);
+        	*/
+
 
             JSONObject obj = new JSONObject(detail);
             JSONObject objMods = obj.getJSONObject("mods");
@@ -122,6 +135,8 @@ public class ServiceWebImpl implements ServiceWeb {
             	String discount = null;  
             	if (objItems.has("discount")) { 
             		discount = objItems.getString("discount");
+            		discount = discount.replace("-", "");
+            		discount = discount.replace("%", "");
             	}
 
             	String productUrl = objItems.getString("productUrl");
@@ -134,10 +149,10 @@ public class ServiceWebImpl implements ServiceWeb {
                     jsonEls.put("category",json.getString("category"));  
                     jsonEls.put("productUrl",productUrl);  
                     jsonEls.put("icon",json.getString("icon_url"));
-                    jsonEls.put("price",price); 
-                    jsonEls.put("originalPrice",originalPrice);  
+                    jsonEls.put("price",Double.parseDouble(price)); 
+                    jsonEls.put("originalPrice",Double.parseDouble(originalPrice));  
                     //jsonEls.put("discountFull",discountFull);
-                    jsonEls.put("discount",discount);  
+                    jsonEls.put("discount",Double.parseDouble(discount));  
                     jsonEls.put("webName",json.getString("web_name"));  
                     
                     String db = json.getString("database");

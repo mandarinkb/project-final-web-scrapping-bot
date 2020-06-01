@@ -26,34 +26,40 @@ public class Controller {
 
     @Scheduled(cron = "0 0/1 * 1/1 * ?") // เรียกใช้งานทุกๆ 1 นาที
     public void runTask() {
-        System.out.println(dateTimes.interDateTime() + " : web scrapping input database start");
-        Jedis redis = rd.connect();
-        boolean checkDetailUrl = true;
-        while (checkDetailUrl) {
-        	String obj = redis.rpop("detailUrl");
-        	JSONObject json = new JSONObject(obj);
-        	String webName = json.getString("web_name");
+    	try {
+            System.out.println(dateTimes.interDateTime() + " : web scrapping input database start");
+            Jedis redis = rd.connect();
+            boolean checkDetailUrl = true;
+            while (checkDetailUrl) {
+            	String obj = redis.rpop("detailUrl");
+            	JSONObject json = new JSONObject(obj);
+            	String webName = json.getString("web_name");
 
-        	if (obj != null) {
-        		//serviceWeb.tescolotus(obj);
-                switch(webName) 
-                { 
-                    case "tescolotus": 
-                    	serviceWeb.tescolotus(json.toString());
-                        break; 
-                    case "lazada": 
-                    	serviceWeb.lazada(json.toString());
-                        break; 
-                    case "three": 
-                        System.out.println("three"); 
-                        break; 
-                    default: 
-                        System.out.println("no match"); 
-                } 
-            } else {
-            	checkDetailUrl = false;
+            	if (obj != null) {
+            		//serviceWeb.tescolotus(obj);
+                    switch(webName) 
+                    { 
+                        case "tescolotus": 
+                        	serviceWeb.tescolotus(json.toString());
+                            break; 
+                        case "lazada": 
+                        	serviceWeb.lazada(json.toString());
+                            break; 
+                        case "three": 
+                            System.out.println("three"); 
+                            break; 
+                        default: 
+                            System.out.println("no match"); 
+                    } 
+                } else {
+                	checkDetailUrl = false;
+                }
             }
-        }
-        System.out.println(dateTimes.interDateTime() + " : web scrapping input database stop");
+            System.out.println(dateTimes.interDateTime() + " : web scrapping input database stop");
+    		
+    	}catch(Exception e) {
+    		System.out.println(e.getMessage());
+    	}
+
     }
 }
