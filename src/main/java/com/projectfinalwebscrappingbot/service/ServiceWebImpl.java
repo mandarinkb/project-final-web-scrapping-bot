@@ -17,6 +17,7 @@ import com.mashape.unirest.http.Unirest;
 import com.projectfinalwebscrappingbot.dao.Redis;
 import com.projectfinalwebscrappingbot.function.DateTimes;
 import com.projectfinalwebscrappingbot.function.Elasticsearch;
+import com.projectfinalwebscrappingbot.function.OtherFunc;
 
 import redis.clients.jedis.Jedis;
 
@@ -36,6 +37,9 @@ public class ServiceWebImpl implements ServiceWeb {
 
     @Autowired
     private Elasticsearch els;    
+    
+    @Autowired
+    private OtherFunc otherFunc;
 
 	@Override
 	public void tescolotus(String obj) {
@@ -88,7 +92,7 @@ public class ServiceWebImpl implements ServiceWeb {
             System.out.println(dateTimes.thaiDateTime() +" web scrapping ==> "+url); 
     	}catch(Exception e) {
     		System.out.println(e.getMessage());
-    		redis.rpush("detailUrl", obj); //กรณี error ให้ยัดลง redis ที่รับมาอีกรอบ
+    		//redis.rpush("detailUrl", obj); //กรณี error ให้ยัดลง redis ที่รับมาอีกรอบ
     	}	
 	}
 
@@ -169,6 +173,65 @@ public class ServiceWebImpl implements ServiceWeb {
         	System.out.println("error => " + e.getMessage());
         	//redis.rpush("detailUrl", objStr); //กรณี error ให้ยัดลง redis ที่รับมาอีกรอบ
         }	
+	}
+
+	@Override
+	public void makroclick(String objStr) {
+	    String urlDetail = "https://www.makroclick.com/th/products/";
+		try {
+			JSONObject jsonEls = new JSONObject();
+			JSONObject obj = new JSONObject(objStr);
+			String category = obj.getString("category");
+			String menuId = obj.getString("menuId");
+			String elas = els.makroApi(menuId, "1");
+			int total = otherFunc.totalPage(elas); // หา page ทั้งหมดก่อน
+			
+			// วนหา pagination ของ page นั้นๆ
+			for(int j = 1; j < total; j++) {
+				String elasValue = els.makroApi(menuId, Integer.toString(j));
+				JSONObject objValue = new JSONObject(elasValue);
+				JSONArray arrContent = objValue.getJSONArray("content");
+				for (int k = 0; k < arrContent.length(); k++) {
+					JSONObject objItems = arrContent.getJSONObject(k);
+					Double originalPrice = objItems.getDouble("inVatPrice");
+					Double price = objItems.getDouble("inVatSpecialPrice");
+					
+					//เก็บเฉพาะที่มีส่วนลด
+					if(!originalPrice.equals(price)) {
+						String image = objItems.getString("image");
+						String name = objItems.getString("productName");
+						String productUrl = urlDetail + objItems.getString("productCode");
+						
+			            double discount = (((originalPrice - price) / originalPrice) * 100);  // หา % ของส่วนลด
+			            DecimalFormat df = new DecimalFormat("#"); // #.# แปลงทศนิยม 1 ตำแหน่ง
+			            discount = Double.parseDouble(df.format(discount));
+			            
+	            		jsonEls.put("image",image);  
+	            		jsonEls.put("name",name);  
+	                    jsonEls.put("category",category);  
+	                    jsonEls.put("productUrl",productUrl);  
+	                    jsonEls.put("icon",obj.getString("icon_url"));
+	                    jsonEls.put("price",price); 
+	                    jsonEls.put("originalPrice",originalPrice);  
+	                    //jsonEls.put("discountFull",discountFull);
+	                    jsonEls.put("discount",discount);  
+	                    jsonEls.put("webName",obj.getString("web_name"));  
+						
+			            String db = obj.getString("database");
+			            // ตรวจสอบ db แล้วทำการลง db นั้นๆ เช่น database1 database2
+			            if(db.matches(db_1)) {
+			            	els.inputElasticsearch(jsonEls.toString(), obj.getString("database"));
+			            }else if(db.matches(db_2)){
+			            	els.inputElasticsearch(jsonEls.toString(), obj.getString("database"));
+			            }
+			            System.out.println(dateTimes.thaiDateTime() +" web scrapping ==> "+productUrl); 
+					}
+				}
+			}
+			
+		}catch(Exception e) {
+			System.out.println(e.getMessage());
+		}
 	}
 
 }

@@ -36,7 +36,6 @@ public class Controller {
             	String webName = json.getString("web_name");
 
             	if (obj != null) {
-            		//serviceWeb.tescolotus(obj);
                     switch(webName) 
                     { 
                         case "tescolotus": 
@@ -45,8 +44,8 @@ public class Controller {
                         case "lazada": 
                         	serviceWeb.lazada(json.toString());
                             break; 
-                        case "three": 
-                            System.out.println("three"); 
+                        case "makroclick": 
+                        	serviceWeb.makroclick(json.toString());
                             break; 
                         default: 
                             System.out.println("no match"); 

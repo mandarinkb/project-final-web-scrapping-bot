@@ -5,9 +5,8 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
-
 import org.json.JSONArray;
-
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -22,6 +21,42 @@ public class Makro {
 	public String icon =  "https://www.makroclick.com/static/images/logo.png";
     public String urlDetail = "https://www.makroclick.com/th/products/";
 	private List<JSONObject> list = new ArrayList();
+	
+    public String changeCategory(String category) {
+        String elsValue = null;
+        try {
+        	Unirest.setTimeouts(0, 0);
+        	HttpResponse<String> response = Unirest.post("http://127.0.0.1:9200/web_scrapping_categories/_search")
+        	  .header("Content-Type", "application/json")
+        	  .body("{\"query\": {\"bool\": {\"must\": {\"match_phrase\": {\"tag\": \""+category+"\"}}}}}")
+        	  .asString();
+
+            elsValue = response.getBody();
+        } catch (UnirestException ex) {
+            //Logger.getLogger(Elasticsearch.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    	
+        JSONObject objResultsValue;
+        String newCategory = null;
+		try {
+			objResultsValue = new JSONObject(elsValue);
+	        JSONObject objHits = objResultsValue.getJSONObject("hits");
+	        JSONArray arrHits = objHits.getJSONArray("hits");
+
+	        
+	        for (int i = 0; i < arrHits.length(); i++) {
+	            JSONObject objSource = arrHits.getJSONObject(i).getJSONObject("_source");	            
+	            newCategory = objSource.getString("category");
+	        }
+			
+			
+		} catch (JSONException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+    	return newCategory;	
+    }
 	
     public String makroApi(String menuId ,String page) {
         String elsValue = null;
@@ -119,10 +154,13 @@ public class Makro {
             for (Element ele : eles) {
             	json = new JSONObject();
 	            String category = ele.select("p").html();
-	            //System.out.println(category);
 	            String menuId = this.getMenuId(category);
-	            //String elsValue = this.makroApi(menuId, "1");
-	            //System.out.println(elsValue);
+	            String newCategory = this.changeCategory(category);
+
+	            System.out.println(category);
+	            System.out.println("change => "+newCategory);
+	            
+	            
 	            json.put("category", category);
 	            json.put("menuId", menuId);
 	            this.list.add(json);
@@ -208,6 +246,6 @@ public class Makro {
         String url = "https://www.makroclick.com/th";
         Makro m = new Makro();
         m.getCategory(url);
-        m.getContent(m.list.toString());
+        //m.getContent(m.list.toString());
     }
 }

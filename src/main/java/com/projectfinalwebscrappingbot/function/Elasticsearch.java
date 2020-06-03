@@ -52,4 +52,30 @@ public class Elasticsearch {
 
     	return elsValue;	
     }
+    
+    public String makroApi(String menuId ,String page) {
+        String elsValue = null;
+        try {
+        	Unirest.setTimeouts(0, 0);
+        	HttpResponse<String> response = Unirest.post("https://ocs-prod-api.makroclick.com/next-product/public/api/product/search")
+        	  .header("Content-Type", "application/json")
+        	  .body("{\"locale\":\"th_TH\","
+        	  		+ "\"minPrice\":null,"
+        	  		+ "\"maxPrice\":null,"
+        	  		+ "\"menuId\":"+menuId+","
+        	  		+ "\"hierarchies\":[],"
+        	  		+ "\"customerType\":\"MKC\","
+        	  		+ "\"page\":"+page+","
+        	  		+ "\"pageSize\":32,"
+        	  		+ "\"sorting\":\"SORTING_LAST_UPDATE\","
+        	  		+ "\"reloadPrice\":true}")
+        	  .asString();
+
+            elsValue = response.getBody();
+        } catch (UnirestException ex) {
+        	System.out.println(ex.getMessage());
+        }
+
+    	return elsValue;	
+    }
 }
