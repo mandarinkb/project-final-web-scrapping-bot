@@ -13,27 +13,36 @@ public class Tescolotus {
 	public static List<String>list = new ArrayList<>();
 	public static List<String>listUrlDetail = new ArrayList<>();
 	//public static String baseUrl = "https://shoponline.tescolotus.com";
-    public static void page(String url){ 
+    public  void page(String url){ 
     	try {
-    		Document doc = Jsoup.connect(url).timeout(60 * 1000).get();//.promotions-by-department--facets.promotions--department.by-department
-            Elements eles = doc.select(".list-item.list-item-large");//.container.py-lg-3.py-2
+    		Document doc = Jsoup.connect(url)
+                    .userAgent("Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) snap Chromium/83.0.4103.61 Chrome/83.0.4103.61 Safari/537.36")
+                    .timeout(600000)
+                    .maxBodySize(0)
+                    .get();//
+            Elements eles = doc.select(".list-item.list-item-large");
             for (Element ele : eles) {
-            	String title = ele.select(".name").html();
-            	System.out.println(title); 
-            	
-                Element eleTitle = ele.select("a").first();
-                //String strUrl = eleTitle.attr("href");                    
-                String strUrl = eleTitle.absUrl("href");
-                String page = strUrl;
-                
-                list.add(page);
-                System.out.println(page);
+            	String category = ele.select(".name").html();
+            	// ตัดหมวดหมู่ดังกล่าวออก
+            	if(!category.matches("ดูทั้งหมด") && !category.matches("แผนกเสื้อผ้า") && !category.matches("สินค้าอื่นๆ")) {
+                    Element eleTitle = ele.select("a").first();
+                    //String strUrl = eleTitle.attr("href");                    
+                    String strUrl = eleTitle.absUrl("href");
+                    //String categoryUrl = strUrl;
+                    
+                    category = category.replace(",", "");
+                    category = category.replace("&amp; ", "");
+                    
+                    //String newCategory = els.getCategory(category); // แปลง category ใหม่
+                    System.out.println(category); 
+
+            }
             }
     	}catch(Exception e) {
     		System.out.println(e.getMessage());
     	}
     }	
-    public static void content(String url){  
+    public void content(String url){  
     	try {
         	System.out.println(url);       	
         	boolean checkNextPage = true;       	
@@ -64,7 +73,7 @@ public class Tescolotus {
     		System.out.println(e.getMessage());
     	}
     }
-    public static void contentDetail(String url){
+    public void contentDetail(String url){
     	try {
         	Document doc = Jsoup.connect(url).timeout(60 * 1000).get();
         	Elements elesUrlDetail = doc.select(".product-image__container");
@@ -105,12 +114,13 @@ public class Tescolotus {
         String url = "https://shoponline.tescolotus.com/groceries/th-TH/promotions/";
         t.page(url);
         
-        list.remove( list.size() - 1 );  // del last element
+/*        list.remove( list.size() - 1 );  // del last element
         System.out.println(list);
       
         for(String listUrl : list) {
         	t.content(listUrl);
         }
+*/        
 /*        int i = 0;
         for(String urlDetail : listUrlDetail) {
         	t.contentDetail(urlDetail);
