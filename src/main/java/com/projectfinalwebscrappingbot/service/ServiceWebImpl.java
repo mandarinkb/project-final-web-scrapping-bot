@@ -237,4 +237,67 @@ public class ServiceWebImpl implements ServiceWeb {
 		}
 	}
 
+	@Override
+	public void bigc(String objStr) {
+		String baseUrl = "https://www.bigc.co.th/";
+		try {
+			JSONObject jsonEls = new JSONObject();
+			JSONObject obj = new JSONObject(objStr);
+			String category = obj.getString("category");
+			String cateId = obj.getString("cateId");
+        	//call bigCapi
+        	String elasValue = els.bigCApi(cateId, "1");
+        	//get last page
+            int lastPage = otherFunc.lastPage(elasValue);
+            for(int j = 1; j < lastPage; j++) {
+            	String bigCValue = els.bigCApi(cateId, Integer.toString(j));
+            	
+            	// ดึงข้อมูล
+    			JSONObject json = new JSONObject(bigCValue);
+    			JSONObject result = json.getJSONObject("result");
+    			JSONArray arrItems = result.getJSONArray("items");
+    			for (int k = 0; k < arrItems.length(); k++) {
+    				JSONObject objItems = arrItems.getJSONObject(k);
+    				double price = objItems.getDouble("final_price_incl_tax");
+    				double originalPrice = objItems.getDouble("price_incl_tax");
+
+    				// เก็บเฉพาะที่มีส่วนลด
+    				if(price != originalPrice) {
+        				String image = objItems.getString("image");
+        				String name = objItems.getString("name");
+        				String productUrl = baseUrl + objItems.getString("url_key");
+
+        				double discount = (((originalPrice - price) / originalPrice) * 100);
+			            DecimalFormat df = new DecimalFormat("#"); // #.# แปลงทศนิยม 1 ตำแหน่ง
+			            discount = Double.parseDouble(df.format(discount));
+        			
+	            		jsonEls.put("image",image);  
+	            		jsonEls.put("name",name);  
+	                    jsonEls.put("category",category);  
+	                    jsonEls.put("productUrl",productUrl);  
+	                    jsonEls.put("icon",obj.getString("icon_url"));
+	                    jsonEls.put("price",price); 
+	                    jsonEls.put("originalPrice",originalPrice);  
+	                    //jsonEls.put("discountFull",discountFull);
+	                    jsonEls.put("discount",discount);  
+	                    jsonEls.put("webName",obj.getString("web_name"));  
+						
+			            String db = obj.getString("database");
+			            // ตรวจสอบ db แล้วทำการลง db นั้นๆ เช่น database1 database2
+			            if(db.matches(db_1)) {
+			            	els.inputElasticsearch(jsonEls.toString(), obj.getString("database"));
+			            }else if(db.matches(db_2)){
+			            	els.inputElasticsearch(jsonEls.toString(), obj.getString("database"));
+			            }
+			            System.out.println(dateTimes.thaiDateTime() +" web scrapping ==> "+productUrl); 
+    				}
+    			}
+            }
+	
+		}catch(Exception e) {
+			System.out.println(e.getMessage());
+		}
+		
+	}
+
 }

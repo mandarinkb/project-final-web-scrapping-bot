@@ -17,4 +17,19 @@ public class OtherFunc {
 		}
     	return total;
     }  
+    
+    // for bigC
+    public int lastPage(String elasValue) {
+    	int last = 0;
+    	try {
+			JSONObject json = new JSONObject(elasValue);
+			JSONObject result = json.getJSONObject("result");
+			last = result.getInt("lastPage");
+			
+		} catch (Exception e) {
+			System.out.println(e.getMessage());
+		}
+
+    	return last;
+    }
 }

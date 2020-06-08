@@ -14,8 +14,10 @@ import org.jsoup.select.Elements;
 
 import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.Unirest;
+import com.mashape.unirest.http.exceptions.UnirestException;
 
 public class BigC {
+	public String icon = "https://www.bigc.co.th/_nuxt/img/108a02e.png"; 
 	public List<JSONObject> list = new ArrayList<>();
     public String getCateId(String category) {
     	String cate_id = null ;
@@ -78,6 +80,42 @@ public class BigC {
     	return cate_id;
     }
     
+    public String changeCategory(String category) {
+        String elsValue = null;
+        try {
+        	Unirest.setTimeouts(0, 0);
+        	HttpResponse<String> response = Unirest.post("http://127.0.0.1:9200/web_scrapping_categories/_search")
+        	  .header("Content-Type", "application/json")
+        	  .body("{\"query\": {\"bool\": {\"must\": {\"match_phrase\": {\"tag\": \""+category+"\"}}}}}")
+        	  .asString();
+
+            elsValue = response.getBody();
+        } catch (UnirestException ex) {
+            //Logger.getLogger(Elasticsearch.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    	
+        JSONObject objResultsValue;
+        String newCategory = null;
+		try {
+			objResultsValue = new JSONObject(elsValue);
+	        JSONObject objHits = objResultsValue.getJSONObject("hits");
+	        JSONArray arrHits = objHits.getJSONArray("hits");
+
+	        
+	        for (int i = 0; i < arrHits.length(); i++) {
+	            JSONObject objSource = arrHits.getJSONObject(i).getJSONObject("_source");	            
+	            newCategory = objSource.getString("category");
+	        }
+			
+			
+		} catch (JSONException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+    	return newCategory;	
+    }
+    
     public String bigCApi(String cateId ,String page) {
     	String elsValue = null;
     	try {
@@ -132,11 +170,27 @@ public class BigC {
             	json = new JSONObject();
             	String category = ele.text();
             	//get cate_id
-            	String cateId = this.getCateId(category);
-            	json.put("category", category);
-            	json.put("cateId", cateId);
-            	list.add(json);
-            	// push ลง redis 
+            	
+            	if(!category.equals("สินค้าบริการส่งด่วน") &&
+            	   !category.equals("สินค้ารับเปิดเทอม") &&	
+            	   !category.equals("เครื่องแต่งกาย") &&
+            	   !category.equals("ร้าน Pure") &&
+            	   !category.equals("สินค้าแบรนด์เบสิโค")) {
+            		//get cate_id
+            		String cateId = this.getCateId(category);
+            		String newCate = this.changeCategory(category);
+                	System.out.println(category);
+                	System.out.println("new category => "+ newCate);
+                	System.out.println(cateId);
+                	//System.out.println();
+                	
+                	
+                	json.put("category", category);
+                	json.put("cateId", cateId);
+                	list.add(json);
+                	// push ลง redis 
+            	}
+            	
             }
     	}catch(Exception e) {
     		System.out.println("error => "+e.getMessage());
@@ -155,7 +209,8 @@ public class BigC {
             	//get last page
                 int lastPage = this.lastPage(elasValue);
                 //ตัด สินค้าบริการส่งด่วน ออกไป
-                if(!category.matches("สินค้าบริการส่งด่วน")) {
+                if(!category.matches("สินค้าบริการส่งด่วน") &&
+                   !category.matches("สินค้ารับเปิดเทอม")) {
                     // get all page and next page เริ่มตั้งแต่หน้าที่ 1
                     for(int j = 1; j < lastPage; j++) {
                     	String bigCValue = this.bigCApi(cateId, Integer.toString(j));
@@ -183,7 +238,7 @@ public class BigC {
     				            System.out.println(name);//
     				            System.out.println(category);//
     				            System.out.println(productUrl);//
-    				            //System.out.println(this.icon);
+    				            System.out.println(this.icon);
     				            System.out.println(price);//
     				            System.out.println(originalPrice);
     				            System.out.println(discount);
@@ -205,7 +260,7 @@ public class BigC {
     	String url = "https://www.bigc.co.th/";
     	BigC b = new BigC();
     	b.getCategory(url);
-    	b.getContent(b.list.toString());
+    	//b.getContent(b.list.toString());
     	
     }
     

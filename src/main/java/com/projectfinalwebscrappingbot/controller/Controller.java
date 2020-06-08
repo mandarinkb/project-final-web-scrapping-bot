@@ -46,6 +46,9 @@ public class Controller {
                             break; 
                         case "makroclick": 
                         	serviceWeb.makroclick(json.toString());
+                            break;  
+                        case "bigc": 
+                        	serviceWeb.bigc(json.toString());;
                             break; 
                         default: 
                             System.out.println("no match"); 
