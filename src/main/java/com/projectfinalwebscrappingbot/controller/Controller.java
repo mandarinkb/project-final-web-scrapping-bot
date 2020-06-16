@@ -8,12 +8,15 @@ import org.springframework.stereotype.Component;
 
 import com.projectfinalwebscrappingbot.dao.Redis;
 import com.projectfinalwebscrappingbot.function.DateTimes;
+import com.projectfinalwebscrappingbot.function.Log;
 import com.projectfinalwebscrappingbot.service.ServiceWeb;
 
 import redis.clients.jedis.Jedis;
 
 @Component
 public class Controller {
+	@Autowired
+	private Log log;
 
     @Autowired
     private DateTimes dateTimes;
@@ -32,10 +35,9 @@ public class Controller {
             boolean checkDetailUrl = true;
             while (checkDetailUrl) {
             	String obj = redis.rpop("detailUrl");
-            	JSONObject json = new JSONObject(obj);
-            	String webName = json.getString("web_name");
-
             	if (obj != null) {
+                	JSONObject json = new JSONObject(obj);
+                	String webName = json.getString("web_name");
                     switch(webName) 
                     { 
                         case "tescolotus": 
@@ -58,10 +60,9 @@ public class Controller {
                 }
             }
             System.out.println(dateTimes.interDateTime() + " : web scrapping input database stop");
-    		
+            log.createLog(dateTimes.datetime(), dateTimes.timestamp(), "system", "stop web scrapping", "stop web scrapping input database");
     	}catch(Exception e) {
     		System.out.println(e.getMessage());
     	}
-
     }
 }

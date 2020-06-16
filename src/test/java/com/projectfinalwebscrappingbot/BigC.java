@@ -3,6 +3,7 @@ package com.projectfinalwebscrappingbot;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -169,6 +170,7 @@ public class BigC {
             for (Element ele : eles.select("a")) {
             	json = new JSONObject();
             	String category = ele.text();
+            	System.out.println(category);
             	//get cate_id
             	
             	if(!category.equals("สินค้าบริการส่งด่วน") &&
@@ -177,16 +179,16 @@ public class BigC {
             	   !category.equals("ร้าน Pure") &&
             	   !category.equals("สินค้าแบรนด์เบสิโค")) {
             		//get cate_id
-            		String cateId = this.getCateId(category);
-            		String newCate = this.changeCategory(category);
-                	System.out.println(category);
-                	System.out.println("new category => "+ newCate);
-                	System.out.println(cateId);
+            		//String cateId = this.getCateId(category);
+            		//String newCate = this.changeCategory(category);
+                	//System.out.println(category);
+                	//System.out.println("new category => "+ newCate);
+                	//System.out.println(cateId);
                 	//System.out.println();
                 	
                 	
                 	json.put("category", category);
-                	json.put("cateId", cateId);
+                	//json.put("cateId", cateId);
                 	list.add(json);
                 	// push ลง redis 
             	}
@@ -256,11 +258,34 @@ public class BigC {
     	
     }
     
+    public String randomStr() {
+    	  
+        int leftLimit = 97; // letter 'a'
+        int rightLimit = 122; // letter 'z'
+        int targetStringLength = 10;
+        Random random = new Random();
+        StringBuilder buffer = new StringBuilder(targetStringLength);
+        for (int i = 0; i < targetStringLength; i++) {
+            int randomLimitedInt = leftLimit + (int) 
+              (random.nextFloat() * (rightLimit - leftLimit + 1));
+            buffer.append((char) randomLimitedInt);
+        }
+        String generatedString = buffer.toString();
+    
+        return generatedString;
+    }
+    
+    
+    
     public static void main(String[] args) {
-    	String url = "https://www.bigc.co.th/";
+    	//String url = "https://www.bigc.co.th/";
     	BigC b = new BigC();
-    	b.getCategory(url);
+    	//b.getCategory(url);
     	//b.getContent(b.list.toString());
+    	
+    	System.out.println(b.randomStr());
+    	
+    	
     	
     }
     

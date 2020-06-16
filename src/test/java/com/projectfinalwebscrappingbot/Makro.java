@@ -155,10 +155,10 @@ public class Makro {
             	json = new JSONObject();
 	            String category = ele.select("p").html();
 	            String menuId = this.getMenuId(category);
-	            String newCategory = this.changeCategory(category);
+	           // String newCategory = this.changeCategory(category);
 
 	            System.out.println(category);
-	            System.out.println("change => "+newCategory);
+	           // System.out.println("change => "+newCategory);
 	            
 	            
 	            json.put("category", category);

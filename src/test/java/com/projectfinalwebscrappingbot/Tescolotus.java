@@ -23,6 +23,7 @@ public class Tescolotus {
             Elements eles = doc.select(".list-item.list-item-large");
             for (Element ele : eles) {
             	String category = ele.select(".name").html();
+            	System.out.println(category); 
             	// ตัดหมวดหมู่ดังกล่าวออก
             	if(!category.matches("ดูทั้งหมด") && !category.matches("แผนกเสื้อผ้า") && !category.matches("สินค้าอื่นๆ")) {
                     Element eleTitle = ele.select("a").first();
@@ -34,7 +35,7 @@ public class Tescolotus {
                     category = category.replace("&amp; ", "");
                     
                     //String newCategory = els.getCategory(category); // แปลง category ใหม่
-                    System.out.println(category); 
+                    //System.out.println(category); 
 
             }
             }
