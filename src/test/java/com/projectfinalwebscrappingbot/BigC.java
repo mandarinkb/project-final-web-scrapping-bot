@@ -278,12 +278,12 @@ public class BigC {
     
     
     public static void main(String[] args) {
-    	//String url = "https://www.bigc.co.th/";
+    	String url = "https://www.bigc.co.th/";
     	BigC b = new BigC();
-    	//b.getCategory(url);
+    	b.getCategory(url);
     	//b.getContent(b.list.toString());
     	
-    	System.out.println(b.randomStr());
+    	//System.out.println(b.randomStr());
     	
     	
     	

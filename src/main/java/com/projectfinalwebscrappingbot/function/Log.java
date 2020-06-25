@@ -24,7 +24,7 @@ public class Log {
 		json.put("type",type);
 		json.put("message", message);
         try {
-            HttpResponse<String> response = Unirest.post("http://"+elasticsearch_ip+":9200/web_scrapping_log/text")
+            HttpResponse<String> response = Unirest.post(elasticsearch_ip+"web_scrapping_log/text")
                     .header("Content-Type", "application/json")
                     .header("Cache-Control", "no-cache")
                     .body(json.toString())

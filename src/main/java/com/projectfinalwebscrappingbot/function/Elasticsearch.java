@@ -17,7 +17,7 @@ public class Elasticsearch {
     
     public void inputElasticsearch(String body,String index) {
         try {
-            HttpResponse<String> response = Unirest.post("http://"+elasticsearch_ip+":9200/"+index+"/text")
+            HttpResponse<String> response = Unirest.post(elasticsearch_ip+index+"/text")
                     .header("Content-Type", "application/json")
                     .header("Cache-Control", "no-cache")
                     .body(body)
@@ -29,7 +29,7 @@ public class Elasticsearch {
 
     public void deleteIndex(String index) {
         try {
-            HttpResponse<String> response = Unirest.delete("http://"+elasticsearch_ip+":9200/"+index)
+            HttpResponse<String> response = Unirest.delete(elasticsearch_ip+index)
                     .header("Accept", "*/*")
                     .header("cache-control", "no-cache")
                     .asString();
