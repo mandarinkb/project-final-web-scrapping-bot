@@ -83,6 +83,8 @@ public class ServiceWebImpl implements ServiceWeb {
             jsonEls.put("discountFull",discountFull);
             jsonEls.put("discount",discount);
             jsonEls.put("webName",json.getString("web_name"));
+            jsonEls.put("review","-");
+            jsonEls.put("ratingScore","-");
             
             String db = json.getString("database");
             // ตรวจสอบ db แล้วทำการลง db นั้นๆ เช่น database1 database2
@@ -115,13 +117,11 @@ public class ServiceWebImpl implements ServiceWeb {
             Elements eles = doc.select("head");
             String detail = eles.select("script").get(3).html();
             detail = detail.replace("window.pageData=", "");
-            
-        	
+                   	
         	// test new
         	/*String detail = null;
         	detail = els.lazadaApi(url);
         	*/
-
 
             JSONObject obj = new JSONObject(detail);
             JSONObject objMods = obj.getJSONObject("mods");
@@ -158,9 +158,10 @@ public class ServiceWebImpl implements ServiceWeb {
                     jsonEls.put("icon",json.getString("icon_url"));
                     jsonEls.put("price",Double.parseDouble(price)); 
                     jsonEls.put("originalPrice",Double.parseDouble(originalPrice));  
-                    //jsonEls.put("discountFull",discountFull);
                     jsonEls.put("discount",Double.parseDouble(discount));  
-                    jsonEls.put("webName",json.getString("web_name"));  
+                    jsonEls.put("webName",json.getString("web_name")); 
+                    jsonEls.put("review",objItems.getString("review"));
+                    jsonEls.put("ratingScore",objItems.getString("ratingScore"));
                     
                     String db = json.getString("database");
                     // ตรวจสอบ db แล้วทำการลง db นั้นๆ เช่น database1 database2
@@ -216,9 +217,10 @@ public class ServiceWebImpl implements ServiceWeb {
 	                    jsonEls.put("icon",obj.getString("icon_url"));
 	                    jsonEls.put("price",price); 
 	                    jsonEls.put("originalPrice",originalPrice);  
-	                    //jsonEls.put("discountFull",discountFull);
 	                    jsonEls.put("discount",discount);  
 	                    jsonEls.put("webName",obj.getString("web_name"));  
+	                    jsonEls.put("review","-");
+	                    jsonEls.put("ratingScore","-");
 						
 			            String db = obj.getString("database");
 			            // ตรวจสอบ db แล้วทำการลง db นั้นๆ เช่น database1 database2
@@ -278,9 +280,10 @@ public class ServiceWebImpl implements ServiceWeb {
 	                    jsonEls.put("icon",obj.getString("icon_url"));
 	                    jsonEls.put("price",price); 
 	                    jsonEls.put("originalPrice",originalPrice);  
-	                    //jsonEls.put("discountFull",discountFull);
 	                    jsonEls.put("discount",discount);  
 	                    jsonEls.put("webName",obj.getString("web_name"));  
+	                    jsonEls.put("review","-");
+	                    jsonEls.put("ratingScore","-");
 						
 			            String db = obj.getString("database");
 			            // ตรวจสอบ db แล้วทำการลง db นั้นๆ เช่น database1 database2
