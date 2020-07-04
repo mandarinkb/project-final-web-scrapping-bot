@@ -12,13 +12,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import com.projectfinalwebscrappingbot.dao.Redis;
 import com.projectfinalwebscrappingbot.function.DateTimes;
 import com.projectfinalwebscrappingbot.function.Elasticsearch;
 import com.projectfinalwebscrappingbot.function.OtherFunc;
-
-import redis.clients.jedis.Jedis;
-
 
 @Service
 public class ServiceWebImpl implements ServiceWeb {
@@ -26,10 +22,7 @@ public class ServiceWebImpl implements ServiceWeb {
     private String db_1;
     
     @Value("${db_2}")
-    private String db_2;
-	
-    @Autowired
-    private Redis rd;  
+    private String db_2; 
     
     @Autowired
     private DateTimes dateTimes;
@@ -42,7 +35,6 @@ public class ServiceWebImpl implements ServiceWeb {
 
 	@Override
 	public void tescolotus(String obj) {
-		Jedis redis = rd.connect();
 		JSONObject json = new JSONObject(obj);
 		JSONObject jsonEls = new JSONObject();
 		String url = json.getString("url");
@@ -103,12 +95,10 @@ public class ServiceWebImpl implements ServiceWeb {
 
 	@Override
 	public void lazada(String objStr) {
-		Jedis redis = rd.connect();
 		JSONObject json = new JSONObject(objStr);
 		JSONObject jsonEls = new JSONObject();
 		String url = json.getString("url");
         try {
-        	// old
     		Document doc = Jsoup.connect(url)
     				            .userAgent("Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) snap Chromium/83.0.4103.61 Chrome/83.0.4103.61 Safari/537.36")
     				            .maxBodySize(0)
@@ -117,18 +107,12 @@ public class ServiceWebImpl implements ServiceWeb {
             Elements eles = doc.select("head");
             String detail = eles.select("script").get(3).html();
             detail = detail.replace("window.pageData=", "");
-                   	
-        	// test new
-        	/*String detail = null;
-        	detail = els.lazadaApi(url);
-        	*/
 
             JSONObject obj = new JSONObject(detail);
             JSONObject objMods = obj.getJSONObject("mods");
             JSONArray arrListItems = objMods.getJSONArray("listItems");
             for (int i = 0; i < arrListItems.length(); i++) {
             	JSONObject objItems = arrListItems.getJSONObject(i);
-            	
             	String image = objItems.getString("image");
             	
             	//เช็คว่ามี key หรือไม่
@@ -251,6 +235,7 @@ public class ServiceWebImpl implements ServiceWeb {
         	String elasValue = els.bigCApi(cateId, "1");
         	//get last page
             int lastPage = otherFunc.lastPage(elasValue);
+         // วนหา pagination ของ page นั้นๆ
             for(int j = 1; j < lastPage; j++) {
             	String bigCValue = els.bigCApi(cateId, Integer.toString(j));
             	
@@ -296,11 +281,8 @@ public class ServiceWebImpl implements ServiceWeb {
     				}
     			}
             }
-	
 		}catch(Exception e) {
 			System.out.println(e.getMessage());
-		}
-		
+		}	
 	}
-
 }
