@@ -18,11 +18,6 @@ import com.projectfinalwebscrappingbot.function.OtherFunc;
 
 @Service
 public class ServiceWebImpl implements ServiceWeb {
-    @Value("${db_1}")
-    private String db_1;
-    
-    @Value("${db_2}")
-    private String db_2; 
     
     @Autowired
     private DateTimes dateTimes;
@@ -78,14 +73,7 @@ public class ServiceWebImpl implements ServiceWeb {
             jsonEls.put("review","-");
             jsonEls.put("ratingScore","-");
             
-            String db = json.getString("database");
-            // ตรวจสอบ db แล้วทำการลง db นั้นๆ เช่น database1 database2
-            if(db.matches(db_1)) {
-            	els.inputElasticsearch(jsonEls.toString(), json.getString("database"));
-            }else if(db.matches(db_2)){
-            	els.inputElasticsearch(jsonEls.toString(), json.getString("database"));
-            }
-            
+            els.inputElasticsearch(jsonEls.toString(), json.getString("database"));
             System.out.println(dateTimes.thaiDateTime() +" web scrapping ==> "+url); 
     	}catch(Exception e) {
     		System.out.println(e.getMessage());
@@ -147,13 +135,7 @@ public class ServiceWebImpl implements ServiceWeb {
                     jsonEls.put("review",objItems.getString("review"));
                     jsonEls.put("ratingScore",objItems.getString("ratingScore"));
                     
-                    String db = json.getString("database");
-                    // ตรวจสอบ db แล้วทำการลง db นั้นๆ เช่น database1 database2
-                    if(db.matches(db_1)) {
-                    	els.inputElasticsearch(jsonEls.toString(), json.getString("database"));
-                    }else if(db.matches(db_2)){
-                    	els.inputElasticsearch(jsonEls.toString(), json.getString("database"));
-                    }
+                    els.inputElasticsearch(jsonEls.toString(), json.getString("database"));                   
                     System.out.println(dateTimes.thaiDateTime() +" web scrapping ==> "+productUrl); 
             	}
             }   
@@ -206,13 +188,7 @@ public class ServiceWebImpl implements ServiceWeb {
 	                    jsonEls.put("review","-");
 	                    jsonEls.put("ratingScore","-");
 						
-			            String db = obj.getString("database");
-			            // ตรวจสอบ db แล้วทำการลง db นั้นๆ เช่น database1 database2
-			            if(db.matches(db_1)) {
-			            	els.inputElasticsearch(jsonEls.toString(), obj.getString("database"));
-			            }else if(db.matches(db_2)){
-			            	els.inputElasticsearch(jsonEls.toString(), obj.getString("database"));
-			            }
+			            els.inputElasticsearch(jsonEls.toString(), obj.getString("database"));			            
 			            System.out.println(dateTimes.thaiDateTime() +" web scrapping ==> "+productUrl); 
 					}
 				}
@@ -270,13 +246,7 @@ public class ServiceWebImpl implements ServiceWeb {
 	                    jsonEls.put("review","-");
 	                    jsonEls.put("ratingScore","-");
 						
-			            String db = obj.getString("database");
-			            // ตรวจสอบ db แล้วทำการลง db นั้นๆ เช่น database1 database2
-			            if(db.matches(db_1)) {
-			            	els.inputElasticsearch(jsonEls.toString(), obj.getString("database"));
-			            }else if(db.matches(db_2)){
-			            	els.inputElasticsearch(jsonEls.toString(), obj.getString("database"));
-			            }
+			            els.inputElasticsearch(jsonEls.toString(), obj.getString("database"));			            
 			            System.out.println(dateTimes.thaiDateTime() +" web scrapping ==> "+productUrl); 
     				}
     			}
