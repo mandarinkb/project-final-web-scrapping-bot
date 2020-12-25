@@ -154,7 +154,7 @@ public class Makro {
             for (Element ele : eles) {
             	json = new JSONObject();
 	            String category = ele.select("p").html();
-	            String menuId = this.getMenuId(category);
+	            //String menuId = this.getMenuId(category);
 	           // String newCategory = this.changeCategory(category);
 
 	            System.out.println(category);
@@ -162,12 +162,13 @@ public class Makro {
 	            
 	            
 	            json.put("category", category);
-	            json.put("menuId", menuId);
+	            //json.put("menuId", menuId);
 	            this.list.add(json);
             }	
     	}catch(Exception e) {
     		System.out.println("error => "+e.getMessage());
     	}
+    	//System.out.println(this.list);
     	return this.list.toString();
     }
     

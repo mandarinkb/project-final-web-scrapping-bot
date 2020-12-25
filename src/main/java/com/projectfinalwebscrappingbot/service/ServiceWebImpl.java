@@ -155,9 +155,11 @@ public class ServiceWebImpl implements ServiceWeb {
 			String menuId = obj.getString("menuId");
 			String elas = els.makroApi(menuId, "1");
 			int total = otherFunc.totalPage(elas); // หา page ทั้งหมดก่อน
-			
+            System.out.println("category => "+category);
+            System.out.println("lastPage => "+total);
+            
 			// วนหา pagination ของ page นั้นๆ
-			for(int j = 1; j < total; j++) {
+			for(int j = 1; j <= total; j++) {
 				String elasValue = els.makroApi(menuId, Integer.toString(j));
 				JSONObject objValue = new JSONObject(elasValue);
 				JSONArray arrContent = objValue.getJSONArray("content");
@@ -211,8 +213,10 @@ public class ServiceWebImpl implements ServiceWeb {
         	String elasValue = els.bigCApi(cateId, "1");
         	//get last page
             int lastPage = otherFunc.lastPage(elasValue);
-         // วนหา pagination ของ page นั้นๆ
-            for(int j = 1; j < lastPage; j++) {
+            System.out.println("category => "+category);
+            System.out.println("lastPage => "+lastPage);
+            // วนหา pagination ของ page นั้นๆ
+            for(int j = 1; j <= lastPage; j++) {
             	String bigCValue = els.bigCApi(cateId, Integer.toString(j));
             	
             	// ดึงข้อมูล
