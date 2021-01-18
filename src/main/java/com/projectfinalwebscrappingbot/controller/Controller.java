@@ -57,10 +57,10 @@ public class Controller {
                     } 
                 } else {
                 	checkDetailUrl = false;
-                }
+                } 
             }
             System.out.println(dateTimes.interDateTime() + " : web scrapping input database stop");
-            log.createLog(dateTimes.datetime(), dateTimes.timestamp(), "system", "stop web scrapping", "stop web scrapping input database");
+            //log.createLog(dateTimes.datetime(), dateTimes.timestamp(), "system", "stop web scrapping", "stop web scrapping input database");
     	}catch(Exception e) {
     		System.out.println(e.getMessage());
     	}
