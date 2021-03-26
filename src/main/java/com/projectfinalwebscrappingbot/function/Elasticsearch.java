@@ -4,9 +4,11 @@ import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
 
+
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -105,5 +107,25 @@ public class Elasticsearch {
         }
     	
     	return elsValue;
+    }
+    
+    public String findAll(String index) {
+        String elsValue = null;
+        try {
+        	Unirest.setTimeouts(0, 0);
+        	HttpResponse<String> response = Unirest.post(elasticsearch_ip+index+"/_search")
+        	  .header("Content-Type", "application/json")
+        	  .body("{ \"query\": {\"match_all\": {}}}")
+        	  .asString();
+
+            elsValue = response.getBody();
+        } catch (UnirestException ex) {
+            Logger.getLogger(Elasticsearch.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    	
+        JSONObject objResultsValue = new JSONObject(elsValue);
+        JSONObject objHits = objResultsValue.getJSONObject("hits");
+        JSONObject objTotal = objHits.getJSONObject("total");
+    	return String.valueOf(objTotal.getInt("value"));	
     }
 }
