@@ -25,9 +25,6 @@ public class ServiceWebImpl implements ServiceWeb {
     @Autowired
     private Elasticsearch els;    
     
-    @Autowired
-    private OtherFunc otherFunc;
-
 	@Override
 	public void tescolotus(String obj) {
 		JSONObject json = new JSONObject(obj);
@@ -147,55 +144,37 @@ public class ServiceWebImpl implements ServiceWeb {
 
 	@Override
 	public void makroclick(String objStr) {
-	    String urlDetail = "https://www.makroclick.com/th/products/";
 		try {
 			JSONObject jsonEls = new JSONObject();
 			JSONObject obj = new JSONObject(objStr);
-			String category = obj.getString("category");
-			String menuId = obj.getString("menuId");
-			String elas = els.makroApi(menuId, "1");
-			int total = otherFunc.totalPage(elas); // หา page ทั้งหมดก่อน
-            System.out.println("category => "+category);
-            System.out.println("lastPage => "+total);
-            
-			// วนหา pagination ของ page นั้นๆ
-			for(int j = 1; j <= total; j++) {
-				String elasValue = els.makroApi(menuId, Integer.toString(j));
-				JSONObject objValue = new JSONObject(elasValue);
-				JSONArray arrContent = objValue.getJSONArray("content");
-				for (int k = 0; k < arrContent.length(); k++) {
-					JSONObject objItems = arrContent.getJSONObject(k);
-					Double originalPrice = objItems.getDouble("inVatPrice");
-					Double price = objItems.getDouble("inVatSpecialPrice");
-					
-					//เก็บเฉพาะที่มีส่วนลด
-					if(!originalPrice.equals(price)) {
-						String image = objItems.getString("image");
-						String name = objItems.getString("productName");
-						String productUrl = urlDetail + objItems.getString("productCode");
-						
-			            double discount = (((originalPrice - price) / originalPrice) * 100);  // หา % ของส่วนลด
-			            DecimalFormat df = new DecimalFormat("#"); // #.# แปลงทศนิยม 1 ตำแหน่ง
-			            discount = Double.parseDouble(df.format(discount));
-			            
-	            		jsonEls.put("image",image);  
-	            		jsonEls.put("name",name);  
-	                    jsonEls.put("category",category);  
-	                    jsonEls.put("productUrl",productUrl);  
-	                    jsonEls.put("icon",obj.getString("icon_url"));
-	                    jsonEls.put("price",price); 
-	                    jsonEls.put("originalPrice",originalPrice);  
-	                    jsonEls.put("discount",discount);  
-	                    jsonEls.put("webName",obj.getString("web_name"));  
-	                    jsonEls.put("review","-");
-	                    jsonEls.put("ratingScore","-");
-						
-			            els.inputElasticsearch(jsonEls.toString(), obj.getString("database"));			            
-			            System.out.println(dateTimes.thaiDateTime() +" web scrapping ==> "+productUrl); 
-					}
-				}
-			}
+			JSONObject objMakroData = new JSONObject(obj.getString("makro_data"));
+			Double originalPrice = objMakroData.getDouble("inVatPrice");
+			Double price = objMakroData.getDouble("inVatSpecialPrice");
 			
+			//เก็บเฉพาะที่มีส่วนลด
+			if(!originalPrice.equals(price)) {
+				String image = objMakroData.getString("image");
+				String name = objMakroData.getString("productName");
+				
+	            double discount = (((originalPrice - price) / originalPrice) * 100);  // หา % ของส่วนลด
+	            DecimalFormat df = new DecimalFormat("#"); // #.# แปลงทศนิยม 1 ตำแหน่ง
+	            discount = Double.parseDouble(df.format(discount));
+	            
+        		jsonEls.put("image",image);  
+        		jsonEls.put("name",name);  
+                jsonEls.put("category",obj.getString("category"));  
+                jsonEls.put("productUrl",obj.getString("productUrl"));  
+                jsonEls.put("icon",obj.getString("icon_url"));
+                jsonEls.put("price",price); 
+                jsonEls.put("originalPrice",originalPrice);  
+                jsonEls.put("discount",discount);  
+                jsonEls.put("webName",obj.getString("web_name"));  
+                jsonEls.put("review","-");
+                jsonEls.put("ratingScore","-");
+				
+	            els.inputElasticsearch(jsonEls.toString(), obj.getString("database"));			            
+	            System.out.println(dateTimes.thaiDateTime() +" web scrapping ==> "+obj.getString("productUrl")); 
+			}
 		}catch(Exception e) {
 			System.out.println(e.getMessage());
 		}
@@ -203,60 +182,39 @@ public class ServiceWebImpl implements ServiceWeb {
 
 	@Override
 	public void bigc(String objStr) {
-		String baseUrl = "https://www.bigc.co.th/";
 		try {
 			JSONObject jsonEls = new JSONObject();
 			JSONObject obj = new JSONObject(objStr);
-			String category = obj.getString("category");
-			String cateId = obj.getString("cateId");
-        	//call bigCapi
-        	String elasValue = els.bigCApi(cateId, "1");
-        	//get last page
-            int lastPage = otherFunc.lastPage(elasValue);
-            System.out.println("category => "+category);
-            System.out.println("lastPage => "+lastPage);
-            // วนหา pagination ของ page นั้นๆ
-            for(int j = 1; j <= lastPage; j++) {
-            	String bigCValue = els.bigCApi(cateId, Integer.toString(j));
-            	
-            	// ดึงข้อมูล
-    			JSONObject json = new JSONObject(bigCValue);
-    			JSONObject result = json.getJSONObject("result");
-    			JSONArray arrItems = result.getJSONArray("items");
-    			for (int k = 0; k < arrItems.length(); k++) {
-    				JSONObject objItems = arrItems.getJSONObject(k);
-    				double price = objItems.getDouble("final_price_incl_tax");
-    				double originalPrice = objItems.getDouble("price_incl_tax");
+			JSONObject objBigcData = new JSONObject(obj.getString("bigc_data"));
+			double price = objBigcData.getDouble("final_price_incl_tax");   
+			double originalPrice = objBigcData.getDouble("price_incl_tax");  
 
-    				// เก็บเฉพาะที่มีส่วนลด
-    				if(price != originalPrice) {
-        				String image = objItems.getString("image");
-        				String name = objItems.getString("name");
-        				String productUrl = baseUrl + objItems.getString("url_key");
+			// เก็บเฉพาะที่มีส่วนลด
+			if(price != originalPrice) {
+				String image = objBigcData.getString("image");
+				String name = objBigcData.getString("name");
 
-        				double discount = (((originalPrice - price) / originalPrice) * 100);
-			            DecimalFormat df = new DecimalFormat("#"); // #.# แปลงทศนิยม 1 ตำแหน่ง
-			            discount = Double.parseDouble(df.format(discount));
-        			
-	            		jsonEls.put("image",image);  
-	            		jsonEls.put("name",name);  
-	                    jsonEls.put("category",category);  
-	                    jsonEls.put("productUrl",productUrl);  
-	                    jsonEls.put("icon",obj.getString("icon_url"));
-	                    jsonEls.put("price",price); 
-	                    jsonEls.put("originalPrice",originalPrice);  
-	                    jsonEls.put("discount",discount);  
-	                    jsonEls.put("webName",obj.getString("web_name"));  
-	                    jsonEls.put("review","-");
-	                    jsonEls.put("ratingScore","-");
-						
-			            els.inputElasticsearch(jsonEls.toString(), obj.getString("database"));			            
-			            System.out.println(dateTimes.thaiDateTime() +" web scrapping ==> "+productUrl); 
-    				}
-    			}
-            }
+				double discount = (((originalPrice - price) / originalPrice) * 100);
+				DecimalFormat df = new DecimalFormat("#"); // #.# แปลงทศนิยม 1 ตำแหน่ง
+				discount = Double.parseDouble(df.format(discount));
+		
+				jsonEls.put("image",image);  
+				jsonEls.put("name",name);  
+				jsonEls.put("category",obj.getString("category"));  
+				jsonEls.put("productUrl",obj.getString("productUrl"));  
+				jsonEls.put("icon",obj.getString("icon_url"));
+				jsonEls.put("price",price); 
+				jsonEls.put("originalPrice",originalPrice);  
+				jsonEls.put("discount",discount);  
+				jsonEls.put("webName",obj.getString("web_name"));  
+				jsonEls.put("review","-");
+				jsonEls.put("ratingScore","-");
+			
+				els.inputElasticsearch(jsonEls.toString(), obj.getString("database"));			            
+				System.out.println(dateTimes.thaiDateTime() +" web scrapping ==> "+obj.getString("productUrl")); 
+			}
 		}catch(Exception e) {
 			System.out.println(e.getMessage());
-		}	
+		}			
 	}
 }
